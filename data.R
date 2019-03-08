@@ -11,7 +11,7 @@
 
 library(openxlsx)
 library(psych)
-source("mups_functions.R")
+source("https://raw.githubusercontent.com/trihacek/GA18-08512S/master/mups_functions.R")
 options(max.print=3000)
 
 
