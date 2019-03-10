@@ -32,11 +32,11 @@ dev.off()
 #MUPS
 mups<- c("mupsPRE", paste0("mupsW", c(2:12)), "mupsPOST")
 pdf(onefile=T, file="plots_mups.pdf")
-dcw_mups <- dcw[dcw$is_mups,]
-pages <- as.integer(nrow(dcw_mups)/12)
+dcl_mups <- dcl[dcl$is_mups,]
+pages <- as.integer(nrow(dcl_mups)/12)
 for (i in 0:(pages-1)) {
   
-  selection <- dcl[dcl$patient %in% d[(i*12):((i*12)+11),"patient"],]
+  selection <- dcl_mups[dcl_mups$patient %in% d[(i*12):((i*12)+11),"patient"],]
   
   x <- ggplot(data = selection, aes(x=time_week, y=mups))+
     facet_wrap(~patient)+
