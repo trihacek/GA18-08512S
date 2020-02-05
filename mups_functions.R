@@ -39,6 +39,21 @@ findLastValue <- function( patient, variable ) {
   return(last)
 }
 
+# Identify last but one measurement value
+findLastButOneValue <- function( patient, variable ) {
+  lastButOne <- NA
+  suffix <- paste0("W",c(2:12))
+  vars <- paste0(variable, suffix)
+  for (i in length(vars):1) {
+    x <- dcw[dcw$patient==patient,vars[i]]
+    if ( !is.na(x) ) {
+      lastButOne <- x
+      break
+    }
+  }
+  return(lastButOne)
+}
+
 # Identify last measurement - gives number of days from the start
 findLastMeasurement <- function( patient, variable ) {
   last <- NA
