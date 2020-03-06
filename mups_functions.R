@@ -24,6 +24,28 @@ findRCI <- function( scale ) {
   return(rci)
 }
 
+findAlpha <- function( scale ) {
+  measureInfo <- measures[ measures$scale==scale, ]
+  items <- eval( parse( text=measureInfo$items ) )
+  reverseItems <- eval( parse( text=measureInfo$reverseItems ) )
+  
+  #Compute Cronbach's alpha
+  #varNames <- paste0( measureInfo$measure, "PRE_", items )
+  varNames <- paste0( measureInfo$measure, items )
+  #Create a subset containing measure items only
+  #varSubset <- dc[ , paste0( measureInfo$measure, "PRE_", seq( 1:measureInfo$numItems ) ) ]
+  varSubset <- dc[ , paste0( measureInfo$measure, seq( 1:measureInfo$numItems ) ) ]
+  #Reverse items
+  if ( !is.na( reverseItems[1] )) {
+    varSubset[ , reverseItems ] <- abs( varSubset[ , reverseItems ] - 
+                                          ( measureInfo$max + measureInfo$min ) )
+  }
+  alpha <- psych::alpha( varSubset[ , items ], warnings=F )
+  alpha <- alpha$total[[1]]
+  
+  return(alpha)
+}
+
 # Identify last measurement value
 findLastValue <- function( patient, variable ) {
   last <- NA
@@ -68,6 +90,21 @@ findLastMeasurement <- function( patient, variable ) {
   return(last)
 }
 
+
+# Identify last measurement - gives number of days from the start
+findLastButOneMeasurement <- function( patient, variable ) {
+  lastButOne <- NA
+  suffix <- c(paste0("W",seq(1:11)+1))
+  vars <- paste0(variable, suffix)
+  for (i in length(vars):1) {
+    if ( !is.na( dcw[dcw$patient==patient,vars[i]] ) ) {
+      lastButOne <- dcw[dcw$patient==patient,paste0("days_from_start",suffix[i])]
+      break
+    }
+  }
+  return(lastButOne)
+}
+
 # Identify last measurement - gives measurement name (for the use in individual reports)
 findLastMeasurement2 <- function( patient, variable ) {
   last <- NA
@@ -80,4 +117,21 @@ findLastMeasurement2 <- function( patient, variable ) {
     }
   }
   return(last)
+}
+
+f2 <- function(fitA, fitB) {
+  #https://jonlefcheck.net/2013/03/13/r2-for-linear-mixed-effects-models/
+  library(sjstats)
+  #Marginal
+  RA2 <- sjstats::r2(fitA)$R2_marginal
+  RB2 <- sjstats::r2(fitB)$R2_marginal
+  f2m <- (RB2 - RA2) / (1 - RB2)
+  
+  #Conditional
+  RA2 <- sjstats::r2(fitA)$R2_conditional
+  RB2 <- sjstats::r2(fitB)$R2_conditional
+  f2c <- (RB2 - RA2) / (1 - RB2)
+  
+  print(f2m)
+  print(f2c)
 }
